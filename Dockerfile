@@ -15,13 +15,13 @@ COPY ["src/Shared/Shared.csproj", "src/Shared/"]
 COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
 
 # Restore
-RUN dotnet restore "src/API/API.csproj"
+RUN dotnet restore "API/API.csproj"
 
 # Copy everything
-COPY . .
+COPY src/ .
 
 # Build
-WORKDIR "/src/src/API"
+WORKDIR "/src/API"
 RUN dotnet build "API.csproj" -c Release -o /app/build
 
 # Publish stage
