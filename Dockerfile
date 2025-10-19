@@ -8,17 +8,17 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copy csproj files
-COPY ["src/API/API.csproj", "src/API/"]
-COPY ["src/Application/Application.csproj", "src/Application/"]
-COPY ["src/Domain/Domain.csproj", "src/Domain/"]
-COPY ["src/Shared/Shared.csproj", "src/Shared/"]
-COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
+COPY ["API/API.csproj", "API/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Shared/Shared.csproj", "Shared/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 
 # Restore
 RUN dotnet restore "API/API.csproj"
 
 # Copy everything
-COPY src/ .
+COPY . .
 
 # Build
 WORKDIR "/src/API"
