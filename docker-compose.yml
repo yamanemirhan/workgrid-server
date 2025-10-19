@@ -1,0 +1,31 @@
+# version: '3.8'
+
+# services:
+#   # postgres:
+#   #   image: postgres:16
+#   #   container_name: workgrid-postgres-dev
+#   #   restart: always
+#   #   environment:
+#   #     POSTGRES_DB: ${DB_NAME}
+#   #     POSTGRES_USER: ${DB_USER}
+#   #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+#   #   ports:
+#   #     - "5434:5432" 
+#   #   volumes:
+#   #     - postgres_data:/var/lib/postgresql/data
+#   #     - ./postgres-init:/docker-entrypoint-initdb.d
+#   #   command: postgres -c 'max_connections=200'
+
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: workgrid-rabbitmq-dev
+#     restart: always
+#     ports:
+#       - "5672:5672"
+#       - "15672:15672"
+#     environment:
+#       RABBITMQ_DEFAULT_USER: rabbituser
+#       RABBITMQ_DEFAULT_PASS: rabbitpassword
+
+# volumes:
+#   postgres_data:
