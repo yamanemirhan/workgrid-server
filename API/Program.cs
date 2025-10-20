@@ -191,8 +191,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Use CORS - must be called before UseAuthentication and UseAuthorization
-app.UseCors("AllowFrontend");
+// Use CORS
+//app.UseCors("AllowFrontend");
+if (app.Environment.IsProduction())
+{
+    app.UseCors(policy =>
+    {
+        policy.WithOrigins("https://workgrid-tms.netlify.app")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+}
+else
+{
+    app.UseCors("AllowFrontend");
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
