@@ -91,7 +91,8 @@ internal class UpdateCardHandler(ICardRepository _cardRepository,
             UserId = userId,
             CardTitle = updatedCard.Title,
             Description = $"Card updated: {updatedCard.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.CardUpdated
         };
         await _rabbitMqPublisher.PublishAsync(cardUpdatedEvent);
 

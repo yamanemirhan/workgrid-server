@@ -61,7 +61,8 @@ internal class CreateWorkspaceHandler(IWorkspaceRepository _workspaceRepository,
             WorkspaceDescription = createdWorkspace.Description,
             WorkspaceLogo = createdWorkspace.Logo,
             Description = $"Workspace '{createdWorkspace.Name}' created by {user.Name}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.WorkspaceCreated,
         };
         
         try

@@ -1,9 +1,10 @@
+using Application.Workspace.Commands;
+using Domain.Enums;
+using Domain.Events;
+using Infrastructure.Messaging.RabbitMQ;
+using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Infrastructure.Repositories;
-using Application.Workspace.Commands;
-using Infrastructure.Messaging.RabbitMQ;
-using Domain.Events;
 
 namespace Application.Workspace.Handlers;
 
@@ -38,7 +39,8 @@ internal class DeleteWorkspaceHandler(IWorkspaceRepository _workspaceRepository,
             UserId = userId,
             WorkspaceName = workspace.Name,
             Description = $"Workspace deleted: {workspace.Name}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.WorkspaceDeleted
         };
         await _rabbitMqPublisher.PublishAsync(workspaceDeletedEvent);
 

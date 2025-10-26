@@ -77,6 +77,7 @@ internal class UnassignUserFromCardHandler(ICardRepository _cardRepository,
                 UnassignedUserName = userToUnassign.Name,
                 UnassignedUserEmail = userToUnassign.Email,
                 Description = $"User {userToUnassign.Name} was unassigned from card {card.Title}",
+                ActivityType = ActivityType.CardMemberAssigned,
                 Metadata = JsonSerializer.Serialize(new { 
                     UnassignedUserId = request.UserId,
                     UnassignedUserName = userToUnassign.Name,

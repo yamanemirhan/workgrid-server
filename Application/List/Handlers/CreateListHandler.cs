@@ -1,10 +1,11 @@
+using Application.List.Commands;
+using Domain.Enums;
+using Domain.Events;
+using Infrastructure.Messaging.RabbitMQ;
+using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Infrastructure.Repositories;
 using Shared.DTOs;
-using Application.List.Commands;
-using Infrastructure.Messaging.RabbitMQ;
-using Domain.Events;
 
 namespace Application.List.Handlers;
 
@@ -54,7 +55,8 @@ internal class CreateListHandler(IListRepository _listRepository,
             UserId = userId,
             ListTitle = createdList.Title,
             Description = $"List created: {createdList.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.ListCreated
         };
         await _rabbitMqPublisher.PublishAsync(listCreatedEvent);
 

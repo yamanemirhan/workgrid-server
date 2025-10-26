@@ -1,10 +1,11 @@
+using Application.Workspace.Commands;
+using Domain.Enums;
+using Domain.Events;
+using Infrastructure.Messaging.RabbitMQ;
+using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Infrastructure.Repositories;
 using Shared.DTOs;
-using Application.Workspace.Commands;
-using Infrastructure.Messaging.RabbitMQ;
-using Domain.Events;
 
 namespace Application.Workspace.Handlers;
 
@@ -47,7 +48,8 @@ internal class UpdateWorkspaceHandler(IWorkspaceRepository _workspaceRepository,
             WorkspaceDescription = updatedWorkspace.Description,
             WorkspaceLogo = updatedWorkspace.Logo,
             Description = $"Workspace updated: {updatedWorkspace.Name}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.WorkspaceUpdated
         };
         await _rabbitMqPublisher.PublishAsync(workspaceUpdatedEvent);
 

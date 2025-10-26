@@ -63,7 +63,8 @@ internal class UpdateListHandler(IListRepository _listRepository,
             UserId = userId,
             ListTitle = updatedList.Title,
             Description = $"List updated: {updatedList.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.ListUpdated
         };
         await _rabbitMqPublisher.PublishAsync(listUpdatedEvent);
 

@@ -12,6 +12,7 @@ public class MemberInvitedEvent : ActivityDomainEvent
     public string WorkspaceName { get; set; } = string.Empty;
     public WorkspaceRole Role { get; set; }
     public string Token { get; set; } = string.Empty;
+    public ActivityType ActivityType { get; set; } = ActivityType.MemberInvited;
 }
 
 public class MemberJoinedEvent : ActivityDomainEvent
@@ -21,6 +22,7 @@ public class MemberJoinedEvent : ActivityDomainEvent
     public string JoinedUserEmail { get; set; } = string.Empty;
     public WorkspaceRole Role { get; set; }
     public string WorkspaceName { get; set; } = string.Empty;
+    public ActivityType ActivityType { get; set; } = ActivityType.MemberJoined;
 }
 
 public class MemberRemovedEvent : ActivityDomainEvent
@@ -32,6 +34,7 @@ public class MemberRemovedEvent : ActivityDomainEvent
     public string RemovedByName { get; set; } = string.Empty;
     public WorkspaceRole PreviousRole { get; set; }
     public string WorkspaceName { get; set; } = string.Empty;
+    public ActivityType ActivityType { get; set; } = ActivityType.MemberRemoved;
 }
 
 public class MemberLeftEvent : ActivityDomainEvent
@@ -41,6 +44,7 @@ public class MemberLeftEvent : ActivityDomainEvent
     public string LeftUserEmail { get; set; } = string.Empty;
     public WorkspaceRole PreviousRole { get; set; }
     public string WorkspaceName { get; set; } = string.Empty;
+    public ActivityType ActivityType { get; set; } = ActivityType.MemberRemoved;
 }
 
 public class MemberRoleChangedEvent : ActivityDomainEvent
@@ -53,4 +57,5 @@ public class MemberRoleChangedEvent : ActivityDomainEvent
     public WorkspaceRole OldRole { get; set; }
     public WorkspaceRole NewRole { get; set; }
     public string WorkspaceName { get; set; } = string.Empty;
+    public ActivityType ActivityType { get; set; } = ActivityType.MemberRoleChanged;
 }

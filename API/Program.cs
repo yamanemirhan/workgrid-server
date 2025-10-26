@@ -192,7 +192,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Use CORS
-//app.UseCors("AllowFrontend");
 if (app.Environment.IsProduction())
 {
     app.UseCors(policy =>

@@ -5,6 +5,7 @@ using Shared.DTOs;
 using Application.Card.Commands;
 using Infrastructure.Messaging.RabbitMQ;
 using Domain.Events;
+using Domain.Enums;
 
 namespace Application.Card.Handlers;
 
@@ -88,7 +89,8 @@ internal class CreateCardHandler(ICardRepository _cardRepository,
             UserId = createdCard.CreatedBy,
             CardTitle = createdCard.Title,
             Description = $"Card created: {createdCard.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.CardCreated
         };
         await _rabbitMqPublisher.PublishAsync(cardCreatedEvent);
 

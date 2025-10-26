@@ -84,6 +84,7 @@ internal class AssignUserToBoardHandler(IBoardRepository _boardRepository,
             AssignedUserId = request.UserId,
             AssignedUserName = userToAssign.Name,
             AssignedUserEmail = userToAssign.Email,
+            ActivityType = ActivityType.BoardMemberAssigned,
             Description = $"User {userToAssign.Name} was assigned to board {board.Title}",
             Metadata = JsonSerializer.Serialize(new { 
                 AssignedUserId = request.UserId,

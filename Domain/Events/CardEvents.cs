@@ -76,4 +76,5 @@ public class CardStatusChangedEvent : ActivityDomainEvent
     public string OldStatusName { get; set; } = string.Empty;
     public Guid NewStatusId { get; set; }
     public string NewStatusName { get; set; } = string.Empty;
+    public ActivityType ActivityType { get; set; } = ActivityType.CardStatusChanged;
 }

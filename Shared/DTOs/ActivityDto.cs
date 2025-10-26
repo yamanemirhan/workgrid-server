@@ -1,5 +1,3 @@
-using Domain.Enums;
-
 namespace Shared.DTOs;
 
 public class ActivityDto
@@ -12,7 +10,7 @@ public class ActivityDto
     public Guid? UserId { get; set; }
     public string? UserName { get; set; }
     public string? UserAvatar { get; set; }
-    public ActivityType Type { get; set; }
+    public string Type { get; set; }
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public Guid? EntityId { get; set; }

@@ -151,7 +151,8 @@ internal class AcceptPublicInvitationHandler(IWorkspaceInvitationRepository _inv
                     Role = invitation.Role,
                     WorkspaceName = workspace.Name,
                     Description = $"{user.Name} joined workspace '{workspace.Name}' as {invitation.Role} via public invitation",
-                    Metadata = $"{{\"InvitationId\":\"{invitation.Id}\",\"AcceptedAt\":\"{DateTime.UtcNow:O}\",\"Role\":\"{invitation.Role}\",\"AcceptanceType\":\"Public\"}}"
+                    Metadata = $"{{\"InvitationId\":\"{invitation.Id}\",\"AcceptedAt\":\"{DateTime.UtcNow:O}\",\"Role\":\"{invitation.Role}\",\"AcceptanceType\":\"Public\"}}",
+                    ActivityType = ActivityType.MemberJoined
                 };
 
                 try

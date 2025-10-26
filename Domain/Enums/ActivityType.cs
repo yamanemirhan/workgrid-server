@@ -25,6 +25,7 @@ public enum ActivityType
     CardMoved,
     CardMemberAssigned,
     CardMemberUnassigned,
+    CardStatusChanged,
     CommentAdded,
     CommentUpdated,
     CommentDeleted

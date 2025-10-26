@@ -57,7 +57,8 @@ internal class DeleteCardHandler(ICardRepository _cardRepository,
             UserId = userId,
             CardTitle = card.Title,
             Description = $"Card deleted: {card.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.CardDeleted
         };
         await _rabbitMqPublisher.PublishAsync(cardDeletedEvent);
     }
