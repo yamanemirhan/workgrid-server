@@ -34,7 +34,7 @@ internal class GetWorkspaceCardStatusesHandler(ICardStatusRepository _cardStatus
         
         foreach (var status in statuses.OrderBy(s => s.Position))
         {
-            var cardCount = await _cardStatusRepository.GetCardCountByStatusAsync(status.Id);
+            var cardCount = await _cardStatusRepository.GetCardCountByStatusAndWorkspaceIdAsync(status.Id, workspace!.Id);
             
             statusDtos.Add(new CardStatusDto
             {

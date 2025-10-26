@@ -170,7 +170,8 @@ internal class AcceptInvitationHandler(IWorkspaceInvitationRepository _invitatio
                     Role = invitation.Role,
                     WorkspaceName = workspace.Name,
                     Description = $"{user.Name} joined workspace '{workspace.Name}' as {invitation.Role}",
-                    Metadata = $"{{\"InvitationId\":\"{invitation.Id}\",\"AcceptedAt\":\"{DateTime.UtcNow:O}\",\"Role\":\"{invitation.Role}\"}}"
+                    Metadata = $"{{\"InvitationId\":\"{invitation.Id}\",\"AcceptedAt\":\"{DateTime.UtcNow:O}\",\"Role\":\"{invitation.Role}\"}}",
+                    ActivityType = ActivityType.MemberJoined
                 };
 
                 try

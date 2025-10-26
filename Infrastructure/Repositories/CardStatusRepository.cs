@@ -155,6 +155,13 @@ public class CardStatusRepository(AppDbContext _context) : ICardStatusRepository
             .CountAsync();
     }
 
+    public async Task<int> GetCardCountByStatusAndWorkspaceIdAsync(Guid statusId, Guid workspaceId)
+    {
+        return await _context.Cards
+            .Where(c => c.StatusId == statusId && !c.IsDeleted &&
+                        c.List.Board.WorkspaceId == workspaceId)
+            .CountAsync();
+    }
     public async Task<bool> CanDeleteStatusAsync(Guid statusId)
     {
         // Can't delete if any cards are using this status

@@ -59,7 +59,8 @@ internal class DeleteListHandler(IListRepository _listRepository,
             UserId = userId,
             ListTitle = list.Title,
             Description = $"List deleted: {list.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.ListDeleted
         };
         await _rabbitMqPublisher.PublishAsync(listDeletedEvent);
 

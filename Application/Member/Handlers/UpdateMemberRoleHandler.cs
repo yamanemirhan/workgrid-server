@@ -88,7 +88,8 @@ internal class UpdateMemberRoleHandler(IWorkspaceRepository _workspaceRepository
             NewRole = request.NewRole,
             WorkspaceName = workspace.Name,
             Description = $"{currentUser?.User?.Name ?? "User"} changed {updatedMember.User?.Name ?? "user"}'s role from {oldRole} to {request.NewRole} in workspace '{workspace.Name}'",
-            Metadata = $"{{\"MemberId\":\"{request.MemberId}\",\"OldRole\":\"{oldRole}\",\"NewRole\":\"{request.NewRole}\",\"ChangedAt\":\"{DateTime.UtcNow:O}\"}}"
+            Metadata = $"{{\"MemberId\":\"{request.MemberId}\",\"OldRole\":\"{oldRole}\",\"NewRole\":\"{request.NewRole}\",\"ChangedAt\":\"{DateTime.UtcNow:O}\"}}",
+            ActivityType = ActivityType.MemberRoleChanged
         };
 
         try

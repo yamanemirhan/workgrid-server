@@ -56,7 +56,8 @@ internal class LeaveWorkspaceHandler(IWorkspaceRepository _workspaceRepository,
             PreviousRole = currentMember.Role,
             WorkspaceName = workspace.Name,
             Description = $"{currentMember.User?.Name ?? "User"} left workspace '{workspace.Name}'",
-            Metadata = $"{{\"MemberId\":\"{currentMember.Id}\",\"PreviousRole\":\"{currentMember.Role}\",\"LeftAt\":\"{DateTime.UtcNow:O}\"}}"
+            Metadata = $"{{\"MemberId\":\"{currentMember.Id}\",\"PreviousRole\":\"{currentMember.Role}\",\"LeftAt\":\"{DateTime.UtcNow:O}\"}}",
+            ActivityType = ActivityType.MemberLeft
         };
 
         try

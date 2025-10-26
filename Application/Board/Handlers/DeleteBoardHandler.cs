@@ -49,7 +49,8 @@ internal class DeleteBoardHandler(IBoardRepository _boardRepository,
             WorkspaceId = board.WorkspaceId,
             UserId = userId,
             Description = $"Board deleted: {board.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.BoardDeleted,
         };
         await _rabbitMqPublisher.PublishAsync(boardDeletedEvent);
 

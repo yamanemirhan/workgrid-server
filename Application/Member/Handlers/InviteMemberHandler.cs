@@ -105,7 +105,8 @@ internal class InviteMemberHandler(IWorkspaceInvitationRepository _invitationRep
             Role = request.Role,
             Token = createdInvitation.Token,
             Description = $"{inviter?.Name ?? "User"} invited {createdInvitation.Email} to workspace '{workspace.Name}' as {request.Role}",
-            Metadata = $"{{\"InvitationId\":\"{createdInvitation.Id}\",\"ExpiresAt\":\"{createdInvitation.ExpiresAt:O}\",\"Role\":\"{request.Role}\"}}"
+            Metadata = $"{{\"InvitationId\":\"{createdInvitation.Id}\",\"ExpiresAt\":\"{createdInvitation.ExpiresAt:O}\",\"Role\":\"{request.Role}\"}}",
+            ActivityType = ActivityType.MemberInvited
         };
 
         try

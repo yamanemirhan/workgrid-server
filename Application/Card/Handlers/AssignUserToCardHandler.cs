@@ -91,6 +91,7 @@ internal class AssignUserToCardHandler(ICardRepository _cardRepository,
             AssignedUserName = userToAssign.Name,
             AssignedUserEmail = userToAssign.Email,
             Description = $"User {userToAssign.Name} was assigned to card {card.Title}",
+            ActivityType = ActivityType.CardMemberAssigned,
             Metadata = JsonSerializer.Serialize(new { 
                 AssignedUserId = request.UserId,
                 AssignedUserName = userToAssign.Name,

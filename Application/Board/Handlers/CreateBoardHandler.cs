@@ -1,10 +1,11 @@
+using Application.Board.Commands;
+using Domain.Enums;
+using Domain.Events;
+using Infrastructure.Messaging.RabbitMQ;
+using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Infrastructure.Repositories;
 using Shared.DTOs;
-using Application.Board.Commands;
-using Infrastructure.Messaging.RabbitMQ;
-using Domain.Events;
 
 namespace Application.Board.Handlers;
 
@@ -59,7 +60,8 @@ internal class CreateBoardHandler(IBoardRepository _boardRepository,
             WorkspaceId = createdBoard.WorkspaceId,
             UserId = createdBoard.CreatedBy,
             Description = $"Board created: {createdBoard.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.BoardCreated,
         };
         
         try

@@ -70,7 +70,8 @@ internal class UpdateBoardHandler(IBoardRepository _boardRepository,
             WorkspaceId = updatedBoard.WorkspaceId,
             UserId = userId,
             Description = $"Board updated: {updatedBoard.Title}",
-            Metadata = null
+            Metadata = null,
+            ActivityType = ActivityType.BoardUpdated
         };
         await _rabbitMqPublisher.PublishAsync(boardUpdatedEvent);
 

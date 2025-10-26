@@ -67,6 +67,7 @@ internal class UnassignUserFromBoardHandler(IBoardRepository _boardRepository,
                 UnassignedUserName = userToUnassign.Name,
                 UnassignedUserEmail = userToUnassign.Email,
                 Description = $"User {userToUnassign.Name} was unassigned from board {board.Title}",
+                ActivityType = ActivityType.BoardMemberUnassigned,
                 Metadata = JsonSerializer.Serialize(new { 
                     UnassignedUserId = request.UserId,
                     UnassignedUserName = userToUnassign.Name,

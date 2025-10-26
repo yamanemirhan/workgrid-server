@@ -17,4 +17,5 @@ public interface ICardStatusRepository
     Task<IEnumerable<CardStatus>> CreateDefaultStatusesForWorkspaceAsync(Guid workspaceId);
     Task<int> GetCardCountByStatusAsync(Guid statusId);
     Task<bool> CanDeleteStatusAsync(Guid statusId);
+    Task<int> GetCardCountByStatusAndWorkspaceIdAsync(Guid statusId, Guid workspaceId);
 }

@@ -50,7 +50,8 @@ internal class RemoveMemberHandler(IWorkspaceRepository _workspaceRepository,
                 PreviousRole = memberToRemove.Role,
                 WorkspaceName = workspace.Name,
                 Description = $"{memberToRemove.User?.Name ?? "User"} left workspace '{workspace.Name}'",
-                Metadata = $"{{\"MemberId\":\"{request.MemberId}\",\"PreviousRole\":\"{memberToRemove.Role}\",\"LeftAt\":\"{DateTime.UtcNow:O}\"}}"
+                Metadata = $"{{\"MemberId\":\"{request.MemberId}\",\"PreviousRole\":\"{memberToRemove.Role}\",\"LeftAt\":\"{DateTime.UtcNow:O}\"}}",
+                ActivityType = ActivityType.MemberLeft
             };
 
             try
@@ -101,7 +102,8 @@ internal class RemoveMemberHandler(IWorkspaceRepository _workspaceRepository,
             PreviousRole = memberToRemove.Role,
             WorkspaceName = workspace.Name,
             Description = $"{currentUser?.User?.Name ?? "User"} removed {memberToRemove.User?.Name ?? "user"} from workspace '{workspace.Name}'",
-            Metadata = $"{{\"MemberId\":\"{request.MemberId}\",\"PreviousRole\":\"{memberToRemove.Role}\",\"RemovedAt\":\"{DateTime.UtcNow:O}\"}}"
+            Metadata = $"{{\"MemberId\":\"{request.MemberId}\",\"PreviousRole\":\"{memberToRemove.Role}\",\"RemovedAt\":\"{DateTime.UtcNow:O}\"}}",
+            ActivityType = ActivityType.MemberRemoved
         };
 
         try

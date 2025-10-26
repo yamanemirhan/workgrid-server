@@ -87,6 +87,7 @@ internal class ChangeCardStatusHandler(ICardRepository _cardRepository,
             NewStatusId = request.StatusId,
             NewStatusName = targetStatus.Name,
             Description = $"Card status changed from '{oldStatus?.Name ?? "No Status"}' to '{targetStatus.Name}'",
+            ActivityType = ActivityType.CardStatusChanged,
             Metadata = JsonSerializer.Serialize(new { 
                 OldStatusId = oldStatus?.Id,
                 OldStatusName = oldStatus?.Name ?? "No Status",
