@@ -64,6 +64,7 @@ internal class MoveCardHandler(ICardRepository _cardRepository,
 
         var oldListId = card.ListId;
         var oldStatusId = card.StatusId;
+        var isMovingToNewList = oldListId != request.TargetListId;
 
         // Update card's list and status to match the target list's status
         card.ListId = request.TargetListId;
@@ -83,6 +84,66 @@ internal class MoveCardHandler(ICardRepository _cardRepository,
         card.UpdatedAt = DateTime.UtcNow;
 
         var updatedCard = await _cardRepository.UpdateAsync(card);
+
+        if (isMovingToNewList)
+        {
+            await _cardRepository.ReorderCardsInListAsync(oldListId);
+            
+            await _cardRepository.ReorderCardsInListAsync(request.TargetListId, excludeCardId: updatedCard.Id);
+            
+            if (request.Position.HasValue)
+            {
+                var targetListCards = await _cardRepository.GetListCardsAsync(request.TargetListId);
+                var cardsList = targetListCards.OrderBy(c => c.Position).ToList();
+                
+                for (int i = 0; i < cardsList.Count; i++)
+                {
+                    if (cardsList[i].Id == updatedCard.Id)
+                    {
+                        cardsList[i].Position = request.Position.Value;
+                    }
+                    else if (cardsList[i].Position >= request.Position.Value)
+                    {
+                        cardsList[i].Position = i + 1 + (i >= request.Position.Value - 1 ? 1 : 0);
+                    }
+                    else
+                    {
+                        cardsList[i].Position = i + 1;
+                    }
+                    cardsList[i].UpdatedAt = DateTime.UtcNow;
+                }
+                
+                await _cardRepository.UpdateCardPositionsAsync(cardsList);
+            }
+        }
+        else
+        {
+            if (request.Position.HasValue)
+            {
+                var listCards = await _cardRepository.GetListCardsAsync(request.TargetListId);
+                var cardsList = listCards.OrderBy(c => c.Position).ToList();
+                
+                var oldPos = cardsList.FindIndex(c => c.Id == updatedCard.Id);
+                var newPos = request.Position.Value - 1;
+                
+                if (oldPos != newPos && oldPos >= 0 && newPos >= 0 && newPos < cardsList.Count)
+                {
+                    var movedCard = cardsList[oldPos];
+                    cardsList.RemoveAt(oldPos);
+                    
+                    cardsList.Insert(newPos, movedCard);
+                    
+                    // Update all positions
+                    for (int i = 0; i < cardsList.Count; i++)
+                    {
+                        cardsList[i].Position = i + 1;
+                        cardsList[i].UpdatedAt = DateTime.UtcNow;
+                    }
+                    
+                    await _cardRepository.UpdateCardPositionsAsync(cardsList);
+                }
+            }
+        }
 
         // Get the updated card with full details
         var cardWithDetails = await _cardRepository.GetByIdWithDetailsAsync(updatedCard.Id);

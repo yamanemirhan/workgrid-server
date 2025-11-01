@@ -54,6 +54,28 @@ internal class UpdateListPositionHandler(IListRepository _listRepository,
 
         var updatedList = await _listRepository.UpdateAsync(list);
 
+        var boardLists = await _listRepository.GetBoardListsAsync(list.BoardId);
+        var listsList = boardLists.OrderBy(l => l.Position).ToList();
+        
+        var oldIndex = listsList.FindIndex(l => l.Id == updatedList.Id);
+        var newIndex = request.Position - 1;
+        
+        if (oldIndex != newIndex && oldIndex >= 0 && newIndex >= 0 && newIndex < listsList.Count)
+        {
+            var movedList = listsList[oldIndex];
+            listsList.RemoveAt(oldIndex);
+            
+            listsList.Insert(newIndex, movedList);
+            
+            for (int i = 0; i < listsList.Count; i++)
+            {
+                listsList[i].Position = i + 1;
+                listsList[i].UpdatedAt = DateTime.UtcNow;
+            }
+            
+            await _listRepository.UpdateListPositionsAsync(listsList);
+        }
+
         // Publish list position updated event
         var listUpdatedEvent = new ListUpdatedEvent
         {

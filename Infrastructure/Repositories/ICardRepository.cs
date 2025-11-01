@@ -15,6 +15,9 @@ public interface ICardRepository
     Task<bool> IsUserAuthorizedToAccessCardAsync(Guid userId, Guid cardId);
     Task<bool> IsUserAuthorizedToEditCardAsync(Guid userId, Guid cardId);
     
+    Task ReorderCardsInListAsync(Guid listId, Guid? excludeCardId = null);
+    Task UpdateCardPositionsAsync(IEnumerable<Card> cards);
+    
     // Card Member methods
     Task<CardMember> AssignUserToCardAsync(CardMember cardMember);
     Task<bool> UnassignUserFromCardAsync(Guid cardId, Guid userId);

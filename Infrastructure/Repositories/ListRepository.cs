@@ -113,4 +113,29 @@ public class ListRepository(AppDbContext _context) : IListRepository
                         && !c.List.Board.Workspace.IsDeleted)
             .CountAsync();
     }
+
+    public async Task ReorderListsInBoardAsync(Guid boardId, Guid? excludeListId = null)
+    {
+        var lists = await _context.Lists
+            .Where(l => l.BoardId == boardId
+                        && !l.IsDeleted
+                        && (!excludeListId.HasValue || l.Id != excludeListId.Value))
+            .OrderBy(l => l.Position)
+            .ToListAsync();
+
+        for (int i = 0; i < lists.Count; i++)
+        {
+            lists[i].Position = i + 1;
+            lists[i].UpdatedAt = DateTime.UtcNow;
+        }
+
+        _context.Lists.UpdateRange(lists);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateListPositionsAsync(IEnumerable<List> lists)
+    {
+        _context.Lists.UpdateRange(lists);
+        await _context.SaveChangesAsync();
+    }
 }

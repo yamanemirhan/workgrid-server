@@ -13,4 +13,7 @@ public interface IListRepository
     Task<bool> ExistsAsync(Guid id);
     Task<int> GetNextPositionAsync(Guid boardId);
     Task<int> GetCardCountByListIdAsync(Guid listId);
+    
+    Task ReorderListsInBoardAsync(Guid boardId, Guid? excludeListId = null);
+    Task UpdateListPositionsAsync(IEnumerable<List> lists);
 }

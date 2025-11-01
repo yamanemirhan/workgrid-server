@@ -234,4 +234,29 @@ public class CardRepository(AppDbContext _context) : ICardRepository
         return await _context.CardFollowers
             .AnyAsync(cf => cf.CardId == cardId && cf.UserId == userId);
     }
+
+    public async Task ReorderCardsInListAsync(Guid listId, Guid? excludeCardId = null)
+    {
+        var cards = await _context.Cards
+            .Where(c => c.ListId == listId
+                        && !c.IsDeleted
+                        && (!excludeCardId.HasValue || c.Id != excludeCardId.Value))
+            .OrderBy(c => c.Position)
+            .ToListAsync();
+
+        for (int i = 0; i < cards.Count; i++)
+        {
+            cards[i].Position = i + 1;
+            cards[i].UpdatedAt = DateTime.UtcNow;
+        }
+
+        _context.Cards.UpdateRange(cards);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateCardPositionsAsync(IEnumerable<Card> cards)
+    {
+        _context.Cards.UpdateRange(cards);
+        await _context.SaveChangesAsync();
+    }
 }
