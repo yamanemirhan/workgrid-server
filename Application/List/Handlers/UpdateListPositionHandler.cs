@@ -9,13 +9,12 @@ using Domain.Enums;
 
 namespace Application.List.Handlers;
 
-internal class UpdateListHandler(IListRepository _listRepository,
-        ICardStatusRepository _cardStatusRepository,
+internal class UpdateListPositionHandler(IListRepository _listRepository,
         IWorkspaceRepository _workspaceRepository,
         IHttpContextAccessor _httpContextAccessor,
-        IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<UpdateListCommand, ListDto>
+        IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<UpdateListPositionCommand, ListDto>
 {
-    public async Task<ListDto> Handle(UpdateListCommand request, CancellationToken cancellationToken)
+    public async Task<ListDto> Handle(UpdateListPositionCommand request, CancellationToken cancellationToken)
     {
         var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("userId")?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
@@ -29,19 +28,13 @@ internal class UpdateListHandler(IListRepository _listRepository,
             throw new ArgumentException("List not found");
         }
 
-        if (list.IsDefault)
-        {
-            throw new InvalidOperationException("Default lists (To-Do, In Progress, Done) cannot be renamed");
-        }
-
         var isMember = await _workspaceRepository.IsUserMemberOfWorkspaceAsync(userId, list.Board.WorkspaceId);
         if (!isMember)
         {
             throw new UnauthorizedAccessException("You don't have permission to update this list");
         }
 
-        // - Owners/Admins can edit any list
-        // - Members can only edit lists they created themselves
+        // Check permissions: Owners/Admins can reorder any list, Members can only reorder lists they created
         var workspaceMembers = await _workspaceRepository.GetWorkspaceMembersAsync(list.Board.WorkspaceId);
         var currentUserMember = workspaceMembers.FirstOrDefault(m => m.UserId == userId);
 
@@ -52,37 +45,16 @@ internal class UpdateListHandler(IListRepository _listRepository,
 
         if (currentUserMember.Role == WorkspaceRole.Member && list.CreatedBy != userId)
         {
-            throw new UnauthorizedAccessException("Members can only edit lists they created themselves");
+            throw new UnauthorizedAccessException("Members can only reorder lists they created themselves");
         }
 
-        var boardLists = await _listRepository.GetBoardListsAsync(list.BoardId);
-        var existingList = boardLists.FirstOrDefault(l => 
-            l.Title.Trim().ToLower() == request.Title.Trim().ToLower() && 
-            l.Id != request.Id);
-        
-        if (existingList != null)
-        {
-            throw new InvalidOperationException($"A list with the name '{request.Title}' already exists in this board");
-        }
-
-        var oldTitle = list.Title;
-        list.Title = request.Title;
+        var oldPosition = list.Position;
+        list.Position = request.Position;
         list.UpdatedAt = DateTime.UtcNow;
-
-        if (list.StatusId.HasValue)
-        {
-            var status = await _cardStatusRepository.GetByIdAsync(list.StatusId.Value);
-            if (status != null && !status.IsDefault)
-            {
-                status.Name = request.Title;
-                status.Description = $"Status for {request.Title} list";
-                status.UpdatedAt = DateTime.UtcNow;
-                await _cardStatusRepository.UpdateAsync(status);
-            }
-        }
 
         var updatedList = await _listRepository.UpdateAsync(list);
 
+        // Publish list position updated event
         var listUpdatedEvent = new ListUpdatedEvent
         {
             ListId = updatedList.Id,
@@ -90,7 +62,7 @@ internal class UpdateListHandler(IListRepository _listRepository,
             WorkspaceId = list.Board.WorkspaceId,
             UserId = userId,
             ListTitle = updatedList.Title,
-            Description = $"List updated: {oldTitle} ? {updatedList.Title}",
+            Description = $"List position updated from {oldPosition} to {request.Position}",
             Metadata = null,
             ActivityType = ActivityType.ListUpdated
         };

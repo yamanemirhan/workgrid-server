@@ -1,3 +1,4 @@
+/*
 using Application.CardStatus.Commands;
 using Domain.Enums;
 using Infrastructure.Repositories;
@@ -59,3 +60,4 @@ internal class DeleteCardStatusHandler(ICardStatusRepository _cardStatusReposito
         return await _cardStatusRepository.DeleteAsync(request.Id);
     }
 }
+*/

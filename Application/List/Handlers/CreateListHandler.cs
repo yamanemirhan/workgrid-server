@@ -11,6 +11,7 @@ namespace Application.List.Handlers;
 
 internal class CreateListHandler(IListRepository _listRepository,
         IBoardRepository _boardRepository,
+        ICardStatusRepository _cardStatusRepository,
         IWorkspaceRepository _workspaceRepository,
         IHttpContextAccessor _httpContextAccessor,
         IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<CreateListCommand, ListDto>
@@ -35,14 +36,38 @@ internal class CreateListHandler(IListRepository _listRepository,
             throw new UnauthorizedAccessException("You don't have permission to create lists in this board");
         }
 
+        var boardLists = await _listRepository.GetBoardListsAsync(request.BoardId);
+        var existingList = boardLists.FirstOrDefault(l => 
+            l.Title.Trim().ToLower() == request.Title.Trim().ToLower());
+        
+        if (existingList != null)
+        {
+            throw new InvalidOperationException($"A list with the name '{request.Title}' already exists in this board");
+        }
+
         var nextPosition = await _listRepository.GetNextPositionAsync(request.BoardId);
+
+        var customStatus = new Domain.Entities.CardStatus
+        {
+            Name = request.Title,
+            Description = $"Status for {request.Title} list",
+            Color = "#6B7280",
+            Position = nextPosition,
+            IsDefault = false,
+            Type = CardStatusType.Custom,
+            WorkspaceId = board.WorkspaceId
+        };
+
+        var createdStatus = await _cardStatusRepository.CreateAsync(customStatus);
 
         var list = new Domain.Entities.List
         {
             Title = request.Title,
             BoardId = request.BoardId,
             CreatedBy = userId,
-            Position = nextPosition
+            Position = nextPosition,
+            StatusId = createdStatus.Id,
+            IsDefault = false
         };
 
         var createdList = await _listRepository.CreateAsync(list);

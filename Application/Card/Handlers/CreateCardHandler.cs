@@ -13,7 +13,6 @@ internal class CreateCardHandler(ICardRepository _cardRepository,
         IListRepository _listRepository,
         IWorkspaceRepository _workspaceRepository,
         IUserRepository _userRepository,
-        ICardStatusRepository _cardStatusRepository,
         IHttpContextAccessor _httpContextAccessor,
         IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<CreateCardCommand, CardDto>
 {
@@ -43,13 +42,6 @@ internal class CreateCardHandler(ICardRepository _cardRepository,
             throw new UnauthorizedAccessException("User not found");
         }
 
-        var todoStatus = await _cardStatusRepository.GetDefaultStatusByNameAsync("To-Do");
-        if (todoStatus == null)
-        {
-            await _cardStatusRepository.CreateDefaultStatusesForWorkspaceAsync(list.Board.WorkspaceId);
-            todoStatus = await _cardStatusRepository.GetDefaultStatusByNameAsync("To-Do");
-        }
-
         var nextPosition = await _cardRepository.GetNextPositionAsync(request.ListId);
 
         var card = new Domain.Entities.Card
@@ -61,24 +53,28 @@ internal class CreateCardHandler(ICardRepository _cardRepository,
             Position = nextPosition,
             EstimatedTime = request.EstimatedTime,
             Tags = request.Tags,
-            StatusId = todoStatus?.Id
+            StatusId = list.StatusId
         };
 
         var createdCard = await _cardRepository.CreateAsync(card);
 
-        var cardStatus = todoStatus != null ? new CardStatusDto
+        CardStatusDto? cardStatus = null;
+        if (list.Status != null)
         {
-            Id = todoStatus.Id,
-            Name = todoStatus.Name,
-            Description = todoStatus.Description,
-            Color = todoStatus.Color,
-            Position = todoStatus.Position,
-            IsDefault = todoStatus.IsDefault,
-            Type = todoStatus.Type,
-            WorkspaceId = todoStatus.WorkspaceId,
-            CreatedAt = todoStatus.CreatedAt,
-            UpdatedAt = todoStatus.UpdatedAt
-        } : null;
+            cardStatus = new CardStatusDto
+            {
+                Id = list.Status.Id,
+                Name = list.Status.Name,
+                Description = list.Status.Description,
+                Color = list.Status.Color,
+                Position = list.Status.Position,
+                IsDefault = list.Status.IsDefault,
+                Type = list.Status.Type,
+                WorkspaceId = list.Status.WorkspaceId,
+                CreatedAt = list.Status.CreatedAt,
+                UpdatedAt = list.Status.UpdatedAt
+            };
+        }
 
         var cardCreatedEvent = new CardCreatedEvent
         {

@@ -1,3 +1,4 @@
+/*
 using Application.CardStatus.Commands;
 using Domain.Enums;
 using Infrastructure.Repositories;
@@ -76,3 +77,4 @@ internal class CreateCardStatusHandler(ICardStatusRepository _cardStatusReposito
         };
     }
 }
+*/

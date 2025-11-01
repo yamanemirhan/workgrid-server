@@ -113,6 +113,29 @@ namespace API.Controllers
             }
         }
 
+        [HttpPut("{id}/position")]
+        public async Task<IActionResult> UpdateListPosition(Guid id, [FromBody] UpdateListPositionCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                var result = await _mediator.Send(command);
+                return Ok(ResponseHelper.Success(result, "List position updated successfully"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ResponseHelper.Unauthorized(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ResponseHelper.NotFound(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.Error("An error occurred while updating list position"));
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteList(Guid id)
         {

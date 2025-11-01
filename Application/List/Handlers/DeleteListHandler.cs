@@ -10,6 +10,7 @@ namespace Application.List.Handlers;
 
 internal class DeleteListHandler(IListRepository _listRepository,
         IBoardRepository _boardRepository,
+        ICardStatusRepository _cardStatusRepository,
         IWorkspaceRepository _workspaceRepository,
         IHttpContextAccessor _httpContextAccessor,
         IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<DeleteListCommand, bool>
@@ -26,6 +27,11 @@ internal class DeleteListHandler(IListRepository _listRepository,
         if (list == null)
         {
             throw new ArgumentException("List not found");
+        }
+
+        if (list.IsDefault)
+        {
+            throw new InvalidOperationException("Default lists (To-Do, In Progress, Done) cannot be deleted");
         }
 
         var isMember = await _workspaceRepository.IsUserMemberOfWorkspaceAsync(userId, list.Board.WorkspaceId);
@@ -47,6 +53,21 @@ internal class DeleteListHandler(IListRepository _listRepository,
         if (currentUserMember.Role == WorkspaceRole.Member && list.CreatedBy != userId)
         {
             throw new UnauthorizedAccessException("Members can only delete lists they created themselves");
+        }
+
+        if (list.StatusId.HasValue)
+        {
+            var status = await _cardStatusRepository.GetByIdAsync(list.StatusId.Value);
+            if (status != null && !status.IsDefault)
+            {
+                var canDeleteStatus = await _cardStatusRepository.CanDeleteStatusAsync(list.StatusId.Value);
+                if (!canDeleteStatus)
+                {
+                    throw new InvalidOperationException("Cannot delete list because there are cards using its status. Please move or delete all cards in this list first.");
+                }
+                
+                await _cardStatusRepository.DeleteAsync(list.StatusId.Value);
+            }
         }
 
         await _listRepository.DeleteAsync(request.Id);
