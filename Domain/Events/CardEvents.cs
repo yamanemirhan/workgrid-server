@@ -29,6 +29,16 @@ public class CardDeletedEvent : ActivityDomainEvent
     public ActivityType ActivityType { get; set; } = ActivityType.CardDeleted;
 }
 
+public class CardMovedEvent : ActivityDomainEvent
+{
+    public Guid CardId { get; set; }
+    public Guid BoardId { get; set; }
+    public string? CardTitle { get; set; }
+    public Guid OldListId { get; set; }
+    public Guid NewListId { get; set; }
+    public ActivityType ActivityType { get; set; } = ActivityType.CardMoved;
+}
+
 public class CardMemberAssignedEvent : ActivityDomainEvent
 {
     public Guid CardId { get; set; }

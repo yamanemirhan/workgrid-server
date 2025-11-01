@@ -19,12 +19,16 @@ namespace API.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("workspace/{workspaceId}")]
-        public async Task<IActionResult> GetWorkspaceCardStatuses(Guid workspaceId)
+        [HttpGet("board/{boardId}")]
+        public async Task<IActionResult> GetBoardCardStatuses(Guid boardId, [FromQuery] Guid workspaceId)
         {
             try
             {
-                var query = new GetWorkspaceCardStatusesQuery { WorkspaceId = workspaceId };
+                var query = new GetBoardCardStatusesQuery 
+                { 
+                    BoardId = boardId,
+                    WorkspaceId = workspaceId 
+                };
                 var result = await _mediator.Send(query);
                 return Ok(ResponseHelper.Success(result, "Card statuses retrieved successfully"));
             }
@@ -66,7 +70,8 @@ namespace API.Controllers
                 return StatusCode(500, ResponseHelper.Error("An error occurred while retrieving card status"));
             }
         }
-
+        
+        /*
         [HttpPost]
         public async Task<IActionResult> CreateCardStatus([FromBody] CreateCardStatusCommand command)
         {
@@ -145,6 +150,7 @@ namespace API.Controllers
             {
                 return StatusCode(500, ResponseHelper.Error("An error occurred while deleting card status"));
             }
-        }    
+        }
+        */    
     }
 }

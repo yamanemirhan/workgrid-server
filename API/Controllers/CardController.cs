@@ -133,7 +133,31 @@ namespace API.Controllers
             }
         }
 
-        // Card Status Management
+        // Card Move and Status Management
+        [HttpPut("{cardId}/move")]
+        public async Task<IActionResult> MoveCard(Guid cardId, [FromBody] MoveCardCommand command)
+        {
+            try
+            {
+                command.CardId = cardId;
+                var result = await _mediator.Send(command);
+                return Ok(ResponseHelper.Success(result, "Card moved successfully"));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ResponseHelper.Unauthorized(ex.Message));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ResponseHelper.Error(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.Error("An error occurred while moving card"));
+            }
+        }
+
+        // When changing a card's status, it automatically moves to the corresponding list
         [HttpPut("{cardId}/status/{statusId}")]
         public async Task<IActionResult> ChangeCardStatus(Guid cardId, Guid statusId)
         {

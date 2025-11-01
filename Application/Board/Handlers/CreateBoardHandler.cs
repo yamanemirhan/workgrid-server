@@ -12,6 +12,8 @@ namespace Application.Board.Handlers;
 internal class CreateBoardHandler(IBoardRepository _boardRepository,
         IWorkspaceRepository _workspaceRepository,
         IUserRepository _userRepository,
+        IListRepository _listRepository,
+        ICardStatusRepository _cardStatusRepository,
         IHttpContextAccessor _httpContextAccessor,
         IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<CreateBoardCommand, BoardDto>
 {
@@ -53,6 +55,37 @@ internal class CreateBoardHandler(IBoardRepository _boardRepository,
 
         var createdBoard = await _boardRepository.CreateAsync(board);
 
+        // Create default statuses if they don't exist
+        var defaultStatuses = await _cardStatusRepository.CreateDefaultStatusesForWorkspaceAsync(request.WorkspaceId);
+        var todoStatus = defaultStatuses.FirstOrDefault(s => s.Name == "To-Do");
+        var inProgressStatus = defaultStatuses.FirstOrDefault(s => s.Name == "In Progress");
+        var doneStatus = defaultStatuses.FirstOrDefault(s => s.Name == "Done");
+
+        // Create 3 default lists with corresponding statuses
+        var defaultLists = new[]
+        {
+            new { Title = "To-Do", StatusId = todoStatus?.Id, Position = 1 },
+            new { Title = "In Progress", StatusId = inProgressStatus?.Id, Position = 2 },
+            new { Title = "Done", StatusId = doneStatus?.Id, Position = 3 }
+        };
+
+        foreach (var listInfo in defaultLists)
+        {
+            if (listInfo.StatusId.HasValue)
+            {
+                var list = new Domain.Entities.List
+                {
+                    Title = listInfo.Title,
+                    BoardId = createdBoard.Id,
+                    CreatedBy = userId,
+                    Position = listInfo.Position,
+                    StatusId = listInfo.StatusId.Value,
+                    IsDefault = true
+                };
+                await _listRepository.CreateAsync(list);
+            }
+        }
+
         var boardCreatedEvent = new BoardCreatedEvent
         {
             BoardId = createdBoard.Id,
@@ -72,7 +105,6 @@ internal class CreateBoardHandler(IBoardRepository _boardRepository,
         catch (Exception ex)
         {
             Console.WriteLine($"[BoardHandler] WARNING: Failed to publish BoardCreatedEvent for board {createdBoard.Title}: {ex.Message}");
-
         }
 
         var workspaceWithDetails = await _workspaceRepository.GetByIdWithDetailsAsync(request.WorkspaceId);
@@ -88,7 +120,7 @@ internal class CreateBoardHandler(IBoardRepository _boardRepository,
             CreatedBy = createdBoard.CreatedBy,
             CreatorName = user.Name,
             CreatedAt = createdBoard.CreatedAt,
-            ListCount = 0,
+            ListCount = 3, // 3 default lists created
             CardCount = 0,
             IsPrivate = createdBoard.IsPrivate
         };

@@ -11,6 +11,7 @@ namespace Application.Card.Handlers;
 
 internal class ChangeCardStatusHandler(ICardRepository _cardRepository,
         ICardStatusRepository _cardStatusRepository,
+        IListRepository _listRepository,
         IWorkspaceRepository _workspaceRepository,
         IHttpContextAccessor _httpContextAccessor,
         IRabbitMqPublisher _rabbitMqPublisher) : IRequestHandler<ChangeCardStatusCommand, bool>
@@ -68,11 +69,51 @@ internal class ChangeCardStatusHandler(ICardRepository _cardRepository,
         }
 
         var oldStatus = card.Status;
+        var oldListId = card.ListId;
+
+        var boardLists = await _listRepository.GetBoardListsAsync(card.List.BoardId);
+        var targetList = boardLists.FirstOrDefault(l => l.StatusId == request.StatusId);
+
+        if (targetList == null)
+        {
+            throw new ArgumentException("No list found for the target status");
+        }
 
         card.StatusId = request.StatusId;
+        card.ListId = targetList.Id;
+        
+        if (oldListId != targetList.Id)
+        {
+            var nextPosition = await _cardRepository.GetNextPositionAsync(targetList.Id);
+            card.Position = nextPosition;
+        }
+        
         card.UpdatedAt = DateTime.UtcNow;
 
         var updatedCard = await _cardRepository.UpdateAsync(card);
+
+        if (oldListId != targetList.Id)
+        {
+            var cardMovedEvent = new CardMovedEvent
+            {
+                UserId = userId,
+                WorkspaceId = card.List.Board.WorkspaceId,
+                BoardId = card.List.BoardId,
+                CardId = request.CardId,
+                CardTitle = card.Title,
+                OldListId = oldListId,
+                NewListId = targetList.Id,
+                Description = $"Card moved from one list to another due to status change",
+                ActivityType = ActivityType.CardMoved,
+                Metadata = JsonSerializer.Serialize(new { 
+                    OldListId = oldListId,
+                    NewListId = targetList.Id,
+                    CardTitle = card.Title,
+                    Reason = "StatusChange"
+                })
+            };
+            await _rabbitMqPublisher.PublishAsync(cardMovedEvent);
+        }
 
         var statusChangedEvent = new CardStatusChangedEvent
         {
